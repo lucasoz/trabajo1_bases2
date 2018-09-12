@@ -39,6 +39,7 @@ CREATE OR REPLACE TRIGGER control_ganancias
 BEFORE INSERT OR UPDATE ON sucursal
 FOR EACH ROW
 DECLARE
+PRAGMA AUTONOMOUS_TRANSACTION;
 cantidad number;
 BEGIN
   SELECT count(*) INTO cantidad FROM sucursal;
