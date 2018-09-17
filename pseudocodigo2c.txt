@@ -6,7 +6,7 @@ cons = consulta(sacar los pasos de que el origen = x)
 
 
 for i in cons:
-	cadena = (origen+'-'+rec(origen,i.cod,destino,i.costo,1))
+	cadena = (origen+i+'-'+rec(origen,i.cod,destino,i.costo,1))
 	if cadena termina x
 		pass
 	else 
@@ -24,4 +24,3 @@ funci rec(origen, actual, destino,suma,contador)
 			return destino+ ' total '+suma+i.costo
 		else 
 			return i+'-'+rec(origen,i,destino,suma+i.costo)
-
