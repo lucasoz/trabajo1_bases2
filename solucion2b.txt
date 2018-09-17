@@ -1,0 +1,61 @@
+CREATE OR REPLACE PROCEDURE comunes_red 
+(cod1 IN NUMBER, cod2 IN NUMBER)
+IS
+TYPE t_num IS TABLE OF NUMBER(3) INDEX BY BINARY_INTEGER;
+cod_red1 t_num;
+cod_red2 t_num;
+i NUMBER;
+contador NUMBER := 0;
+ciudades VARCHAR2(1000) := 'Los codigos de las ciudades son: ';
+CURSOR red_cursor(id NUMBER) IS
+	SELECT DISTINCT xt.origen, xt.destino FROM red,
+	XMLTABLE
+	(
+		'/GrafoRuta/Paso'
+		PASSING grafo_rutas
+		COLUMNS
+		origen NUMBER(3) PATH 'Origen',
+		destino NUMBER(3) PATH 'Destino',
+		costo NUMBER(3) PATH 'Costo'
+	) xt WHERE id_red = id;
+	
+BEGIN
+	FOR paso IN red_cursor(cod1) LOOP
+		cod_red1(paso.origen) := paso.origen;
+		cod_red1(paso.destino) := paso.destino;
+	END LOOP;
+	
+	FOR paso IN red_cursor(cod2) LOOP
+		cod_red2(paso.origen) := paso.origen;
+		cod_red2(paso.destino) := paso.destino;
+	END LOOP;
+	
+	IF cod_red1.COUNT > cod_red2.COUNT THEN
+		i := cod_red2.FIRST;
+		WHILE i IS NOT NULL LOOP
+			IF cod_red1.EXISTS(i) THEN
+				ciudades := ciudades || cod_red2(i) || ', ';
+				contador := contador + 1;
+			END IF;
+			i := cod_red2.NEXT(i);
+		END LOOP;
+	ELSE
+		i := cod_red1.FIRST;
+		WHILE i IS NOT NULL LOOP
+			IF cod_red2.EXISTS(i) THEN
+				ciudades := ciudades || cod_red1(i) || ', ';
+				contador := contador + 1;
+			END IF;
+			i := cod_red1.NEXT(i);
+		END LOOP;
+	END IF;
+	IF contador > 0 THEN
+		DBMS_OUTPUT.PUT_LINE('Las dos red tienen en común ' || contador || ' ciudades');
+		DBMS_OUTPUT.PUT_LINE(ciudades);
+	ELSE
+		DBMS_OUTPUT.PUT_LINE('Las dos red no tienen ciudades en común');
+	END IF;
+END;
+/
+
+
