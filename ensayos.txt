@@ -1,0 +1,68 @@
+CREATE TABLE red(
+id_red NUMBER(8) PRIMARY KEY,
+nombre_red VARCHAR2(40) NOT NULL,
+grafo_rutas XMLTYPE
+); 
+
+insert into red values(330,'Red 1',
+'<GrafoRuta>
+	<Paso>
+		<Origen>1</Origen>
+		<Destino>2</Destino>
+		<Costo>100</Costo>
+	</Paso>
+	<Paso>
+		<Origen>1</Origen>
+		<Destino>4</Destino>
+		<Costo>90</Costo>
+	</Paso>
+	<Paso>
+		<Origen>1</Origen>
+		<Destino>3</Destino>
+		<Costo>50</Costo>
+	</Paso>
+	<Paso>
+		<Origen>2</Origen>
+		<Destino>4</Destino>
+		<Costo>20</Costo>
+	</Paso>
+	<Paso>
+		<Origen>3</Origen>
+		<Destino>4</Destino>
+		<Costo>30</Costo>
+	</Paso>
+	<Paso>
+		<Origen>4</Origen>
+		<Destino>5</Destino>
+		<Costo>90</Costo>
+	</Paso>
+	<Paso>
+		<Origen>5</Origen>
+		<Destino>1</Destino>
+		<Costo>50</Costo>
+	</Paso>
+</GrafoRuta>');
+
+insert into red values(331,'Red 2',
+'<GrafoRuta>
+	<Paso>
+		<Origen>1</Origen>
+		<Destino>2</Destino>
+		<Costo>1000</Costo>
+	</Paso>
+	<Paso>
+		<Origen>2</Origen>
+		<Destino>3</Destino>
+		<Costo>900</Costo>
+	</Paso>
+	<Paso>
+		<Origen>3</Origen>
+		<Destino>4</Destino>
+		<Costo>500</Costo>
+	</Paso>
+	<Paso>
+		<Origen>4</Origen>
+		<Destino>1</Destino>
+		<Costo>200</Costo>
+	</Paso>
+</GrafoRuta>');

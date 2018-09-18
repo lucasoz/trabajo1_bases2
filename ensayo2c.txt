@@ -1,0 +1,15 @@
+CREATE OR REPLACE PROCEDURE rutas
+(id IN NUMBER, cod_ciudad1 IN NUMBER, cod_ciudad2 IN NUMBER)
+IS
+
+CURSOR red_cursor(id NUMBER, origen NUMBER) IS
+	SELECT xt.origen, xt.destino FROM red,
+	XMLTABLE
+	(
+		'/GrafoRuta/Paso'
+		PASSING grafo_rutas
+		COLUMNS
+		origen NUMBER(3) PATH 'Origen',
+		destino NUMBER(3) PATH 'Destino',
+		costo NUMBER(3) PATH 'Costo'
+	) AS xt WHERE id_red = 330 and xt.origen = 1;
