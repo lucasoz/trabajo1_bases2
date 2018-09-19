@@ -4,7 +4,7 @@ IS
 cadenaR VARCHAR(250);
 topeR NUMBER := tope;
 saltosR NUMBER := 0;
-costoR NUMBER := 0;
+costoR NUMBER(38) := 0;
 BEGIN
 
 	FOR i IN (SELECT DISTINCT origen, destino, costo FROM red,
@@ -13,9 +13,9 @@ BEGIN
 	  '/GrafoRuta/Paso'
 	  PASSING grafo_rutas
 	  COLUMNS
-	  origen NUMBER(3) PATH 'Origen',
-	  destino NUMBER(3) PATH 'Destino',
-	  costo NUMBER(3) PATH 'Costo'
+	  origen NUMBER(38) PATH 'Origen',
+	  destino NUMBER(38) PATH 'Destino',
+	  costo NUMBER(38) PATH 'Costo'
 	) WHERE id_red = id and origen = actual) LOOP
 	IF actual = meta THEN
 		cadenaR := cadena || '-' || actual;
@@ -44,7 +44,7 @@ IS
 cadena VARCHAR(250);
 tope NUMBER := 0;
 saltos NUMBER(10) := 0;
-costo NUMBER(10) := 0;
+costo NUMBER(38) := 0;
 BEGIN
 	--aqui se calcula el # de nodos
 	SELECT count(DISTINCT origen) INTO tope FROM red,
@@ -53,9 +53,9 @@ BEGIN
 	  '/GrafoRuta/Paso'
 	  PASSING grafo_rutas
 	  COLUMNS
-	  origen NUMBER(3) PATH 'Origen',
-	  destino NUMBER(3) PATH 'Destino',
-	  costo NUMBER(3) PATH 'Costo'
+	  origen NUMBER(38) PATH 'Origen',
+	  destino NUMBER(38) PATH 'Destino',
+	  costo NUMBER(38) PATH 'Costo'
 	) WHERE id_red = id;
 
 	FOR i IN (SELECT DISTINCT origen, destino, costo FROM red,
@@ -64,9 +64,9 @@ BEGIN
 	  '/GrafoRuta/Paso'
 	  PASSING grafo_rutas
 	  COLUMNS
-	  origen NUMBER(3) PATH 'Origen',
-	  destino NUMBER(3) PATH 'Destino',
-	  costo NUMBER(3) PATH 'Costo'
+	  origen NUMBER(38) PATH 'Origen',
+	  destino NUMBER(38) PATH 'Destino',
+	  costo NUMBER(38) PATH 'Costo'
 	) WHERE id_red = id and origen = inicio) LOOP
 		cadena := inicio;
 		Ruta(id,fin,i.destino,i.costo,tope,saltos,cadena);
