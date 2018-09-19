@@ -1,4 +1,4 @@
-codigo_ruta
+codigo_ruta 
 x = origen 
 y = destino
 tam = count pasos xml
@@ -24,4 +24,4 @@ funci rec(origen, actual, destino,suma_costo,contador)
 			else if a.destino = origen
 				return 'x'
 			else 
-				return a.destino + '-'+ rec(origen,a.destino,destino,suma+i.costo)
+				return a.destino + '-'+ rec(origen,a.destino,destino,suma+i.costo,contador)
