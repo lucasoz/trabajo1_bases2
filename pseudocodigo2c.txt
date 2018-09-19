@@ -2,25 +2,26 @@ codigo_ruta
 x = origen 
 y = destino
 tam = count pasos xml
-cons = consulta(sacar los pasos de que el origen = x)
+cons = SQL(sacar los pasos de que el origen = x)
 
 
 for i in cons:
-	cadena = (origen+i+'-'+rec(origen,i.cod,destino,i.costo,1))
-	if cadena termina x
+	cadena = (origen+'-'+i.destino+'-'+rec(origen,i.destino,destino,i.costo,1))
+	if cadena termina 'x'
 		pass
 	else 
 		print cadena
 
-funci rec(origen, actual, destino,suma,contador)
-	consulta = cons = consulta(sacar los destinos de los nodos que el origen = actual)
-	contador = contador + 1
-	for i in consulta
-		if contador = tam
-			return 'x'
-		else if i = origen
-			return 'x'
-		else if i = destino
-			return destino+ ' total '+suma+i.costo
-		else 
-			return i+'-'+rec(origen,i,destino,suma+i.costo)
+funci rec(origen, actual, destino,suma_costo,contador)
+	if actual = destino
+		return ' total ' + suma_costo
+	else
+		consulta = SQL(sacar los pasos que el origen = actual)
+		contador = contador + 1
+		for a in consulta
+			if contador = tam
+				return 'x'
+			else if a.destino = origen
+				return 'x'
+			else 
+				return a.destino + '-'+ rec(origen,a.destino,destino,suma+i.costo)
