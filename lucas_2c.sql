@@ -102,3 +102,36 @@ ELSE
 END IF;
 END;
 /
+
+create or replace PROCEDURE posibles_rutas
+(codigo_red IN NUMBER, origen_t IN NUMBER, destino IN NUMBER)
+IS
+cadena VARCHAR(250);
+tam NUMBER:=0;
+BEGIN
+SELECT count(DISTINCT origen) INTO tam FROM red,
+XMLTABLE
+(
+  '/GrafoRuta/Paso'
+  PASSING grafo_rutas
+  COLUMNS
+  origen NUMBER(38) PATH 'Origen',
+  destino NUMBER(38) PATH 'Destino',
+  costo NUMBER(38) PATH 'Costo'
+) WHERE id_red = codigo_red;
+
+FOR i IN (SELECT origen, destino, costo FROM red,
+XMLTABLE
+(
+  '/GrafoRuta/Paso'
+  PASSING grafo_rutas
+  COLUMNS
+  origen NUMBER(38) PATH 'Origen',
+  destino NUMBER(38) PATH 'Destino',
+  costo NUMBER(38) PATH 'Costo'
+) WHERE id_red = codigo_red and origen = origen_t) LOOP
+  cadena:=origen_t||'-'||i.destino;
+  recursiva(cadena,codigo_red,origen_t,i.destino,destino,i.costo,1,tam);
+END LOOP;
+END;
+/
