@@ -1,0 +1,75 @@
+CREATE OR REPLACE PROCEDURE Ruta
+(id IN NUMBER, meta IN NUMBER, actual IN NUMBER, costo IN NUMBER, tope IN NUMBER, saltos IN NUMBER, cadena IN VARCHAR)
+IS
+cadenaR VARCHAR(250);
+topeR NUMBER := tope;
+saltosR NUMBER := 0;
+costoR NUMBER(38) := 0;
+BEGIN
+
+	FOR i IN (SELECT DISTINCT origen, destino, costo FROM red,
+	XMLTABLE
+	(
+	  '/GrafoRuta/Paso'
+	  PASSING grafo_rutas
+	  COLUMNS
+	  origen NUMBER(38) PATH 'Origen',
+	  destino NUMBER(38) PATH 'Destino',
+	  costo NUMBER(38) PATH 'Costo'
+	) WHERE id_red = id and origen = actual) LOOP
+	IF actual = meta THEN
+		cadenaR := cadena || '-' || actual;
+		DBMS_OUTPUT.PUT_LINE(cadenaR || ' total ' || costo);
+	ELSE
+		cadenaR := cadena || '-' || actual;
+		costoR := costo + i.costo;
+		saltosR := saltos + 1;
+		IF saltos > tope THEN
+			CONTINUE;
+		ELSIF i.destino = meta THEN
+			cadenaR := cadenaR || '-' || i.destino;
+			DBMS_OUTPUT.PUT_LINE(cadenaR || ' total ' || costoR);
+		ELSE
+			Ruta(id,meta,i.destino,costoR,topeR,saltosR,cadenaR);
+		END IF;
+	END IF;
+	END LOOP;
+END;
+/
+
+
+CREATE OR REPLACE PROCEDURE RyC 
+(id IN NUMBER, inicio IN NUMBER, fin IN NUMBER)
+IS
+cadena VARCHAR(250);
+tope NUMBER := 0;
+saltos NUMBER(10) := 0;
+costo NUMBER(38) := 0;
+BEGIN
+	--aqui se calcula el # de nodos
+	SELECT count(DISTINCT origen) INTO tope FROM red,
+	XMLTABLE
+	(
+	  '/GrafoRuta/Paso'
+	  PASSING grafo_rutas
+	  COLUMNS
+	  origen NUMBER(38) PATH 'Origen',
+	  destino NUMBER(38) PATH 'Destino',
+	  costo NUMBER(38) PATH 'Costo'
+	) WHERE id_red = id;
+
+	FOR i IN (SELECT DISTINCT origen, destino, costo FROM red,
+	XMLTABLE
+	(
+	  '/GrafoRuta/Paso'
+	  PASSING grafo_rutas
+	  COLUMNS
+	  origen NUMBER(38) PATH 'Origen',
+	  destino NUMBER(38) PATH 'Destino',
+	  costo NUMBER(38) PATH 'Costo'
+	) WHERE id_red = id and origen = inicio) LOOP
+		cadena := inicio;
+		Ruta(id,fin,i.destino,i.costo,tope,saltos,cadena);
+	END LOOP;
+END;
+/
