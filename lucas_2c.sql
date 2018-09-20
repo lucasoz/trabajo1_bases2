@@ -5,7 +5,7 @@ nombre_red VARCHAR2(40) NOT NULL,
 grafo_rutas XMLTYPE
 );
 
-insert into red values(330,'Red 1',
+insert into red values(333,'Red 2',
 '<GrafoRuta>
 	<Paso>
 		<Origen>1</Origen>
@@ -44,7 +44,7 @@ insert into red values(330,'Red 1',
 	</Paso>
 </GrafoRuta>');
 
-insert into red values(331,'Red 2',
+insert into red values(335,'Red 2',
 '<GrafoRuta>
 	<Paso>
 		<Origen>1</Origen>
@@ -71,9 +71,9 @@ insert into red values(331,'Red 2',
 -- ESTA ES LA FUNCION recursiva. CREO QUE ESTO TIENE ERRORES
 CREATE OR REPLACE FUNCTION recursiva(red IN NUMBER, origen IN NUMBER, actual IN NUMBER, destino IN NUMBER, suma_costo IN NUMBER, contador IN NUMBER)
 RETURN VARCHAR IS
-tam NUMBER(5):=0;
-suma_f NUMBER(5):=0;
-contador_f NUMBER(5);
+tam NUMBER:=0;
+suma_f NUMBER:=0;
+contador_f NUMBER;
 BEGIN
 SELECT count(DISTINCT origen) INTO tam FROM red,
 XMLTABLE
@@ -81,9 +81,9 @@ XMLTABLE
   '/GrafoRuta/Paso'
   PASSING grafo_rutas
   COLUMNS
-  origen NUMBER(3) PATH 'Origen',
-  destino NUMBER(3) PATH 'Destino',
-  costo NUMBER(3) PATH 'Costo'
+  origen NUMBER(38) PATH 'Origen',
+  destino NUMBER(38) PATH 'Destino',
+  costo NUMBER(38) PATH 'Costo'
 ) WHERE id_red = red;
 IF actual = destino THEN
 	RETURN ' total '||suma_costo;
@@ -95,9 +95,9 @@ ELSE
     '/GrafoRuta/Paso'
     PASSING grafo_rutas
     COLUMNS
-    origen NUMBER(3) PATH 'Origen',
-    destino NUMBER(3) PATH 'Destino',
-    costo NUMBER(3) PATH 'Costo'
+    origen NUMBER(38) PATH 'Origen',
+    destino NUMBER(38) PATH 'Destino',
+    costo NUMBER(38) PATH 'Costo'
   ) WHERE id_red = red and origen = actual) LOOP
     suma_f:=suma_costo+i.costo;
     IF contador = tam THEN
@@ -150,9 +150,9 @@ XMLTABLE
   '/GrafoRuta/Paso'
   PASSING grafo_rutas
   COLUMNS
-  origen NUMBER(3) PATH 'Origen',
-  destino NUMBER(3) PATH 'Destino',
-  costo NUMBER(3) PATH 'Costo'
+  origen NUMBER(38) PATH 'Origen',
+  destino NUMBER(38) PATH 'Destino',
+  costo NUMBER(38) PATH 'Costo'
 ) WHERE id_red = codigo_red and origen = origen_t) LOOP
   cadena:=origen_t||'-'||i.destino||recursiva(codigo_red,origen_t,i.destino,destino,i.costo,1);
 	IF length(cadena) != instr(cadena,'x') THEN
@@ -161,3 +161,5 @@ XMLTABLE
 END LOOP;
 END;
 /
+
+execute posibles_rutas(333,1,4);
