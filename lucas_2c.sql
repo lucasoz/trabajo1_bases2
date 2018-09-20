@@ -68,6 +68,8 @@ insert into red values(335,'Red 2',
 	</Paso>
 </GrafoRuta>');
 
+create table rutas_posibles(texo VARCHAR(250) PRIMARY KEY,total NUMBER(38));
+
 CREATE OR REPLACE PROCEDURE recursiva(
 cadena IN VARCHAR, red IN NUMBER, origen IN NUMBER, actual IN NUMBER, destino IN NUMBER, suma_costo IN NUMBER, contador IN NUMBER, tam IN NUMBER)
 IS
@@ -76,7 +78,8 @@ suma_f NUMBER:=0;
 contador_f NUMBER;
 BEGIN
 IF actual = destino THEN
-	DBMS_OUTPUT.PUT_LINE(cadena||' total '||suma_costo);
+	INSERT INTO rutas_posibles values(cadena,suma_costo);
+	--DBMS_OUTPUT.PUT_LINE(cadena||' total '||suma_costo);
 ELSE
   contador_f:=contador+1;
   FOR i IN (SELECT origen, destino, costo FROM red,
@@ -109,6 +112,7 @@ IS
 cadena VARCHAR(250);
 tam NUMBER:=0;
 BEGIN
+delete rutas_posibles;
 SELECT count(DISTINCT origen) INTO tam FROM red,
 XMLTABLE
 (
@@ -132,6 +136,10 @@ XMLTABLE
 ) WHERE id_red = codigo_red and origen = origen_t) LOOP
   cadena:=origen_t||'-'||i.destino;
   recursiva(cadena,codigo_red,origen_t,i.destino,destino,i.costo,1,tam);
+END LOOP;
+
+FOR elemento IN (select * from rutas_posibles order by total desc) LOOP
+	DBMS_OUTPUT.PUT_LINE(elemento.texo||' total '||elemento.total);
 END LOOP;
 END;
 /
