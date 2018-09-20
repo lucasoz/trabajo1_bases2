@@ -69,7 +69,7 @@ insert into red values(331,'Red 2',
 </GrafoRuta>');
 
 -- ESTA ES LA FUNCION recursiva. CREO QUE ESTO TIENE ERRORES
-CREATE OR REPLACE FUNCTION recursiva(origen IN NUMBER, actual IN NUMBER, destino IN NUMBER, suma_costo IN NUMBER, contador IN NUMBER)
+CREATE OR REPLACE FUNCTION recursiva(red IN NUMBER, origen IN NUMBER, actual IN NUMBER, destino IN NUMBER, suma_costo IN NUMBER, contador IN NUMBER)
 RETURN VARCHAR IS
 tam NUMBER(5):=0;
 suma_f NUMBER(5):=0;
@@ -84,9 +84,9 @@ XMLTABLE
   origen NUMBER(3) PATH 'Origen',
   destino NUMBER(3) PATH 'Destino',
   costo NUMBER(3) PATH 'Costo'
-) WHERE id_red = 330;
+) WHERE id_red = red;
 IF actual = destino THEN
-  RETURN 'total '||suma_costo;
+	RETURN ' total '||suma_costo;
 ELSE
   contador_f:=contador+1;
   FOR i IN (SELECT origen, destino, costo FROM red,
@@ -98,14 +98,14 @@ ELSE
     origen NUMBER(3) PATH 'Origen',
     destino NUMBER(3) PATH 'Destino',
     costo NUMBER(3) PATH 'Costo'
-  ) WHERE id_red = 330 and origen = actual) LOOP
+  ) WHERE id_red = red and origen = actual) LOOP
     suma_f:=suma_costo+i.costo;
     IF contador = tam THEN
       RETURN 'x';
     ELSIF i.destino = origen THEN
-      RETURN 'X';
+      RETURN 'x';
     ELSE
-      RETURN i.destino||'-'||recursiva(origen,i.destino,destino,suma_f,contador);
+      RETURN '-'||i.destino||recursiva(red,origen,i.destino,destino,suma_f,contador);
     END IF;
   END LOOP;
 END IF;
@@ -114,10 +114,35 @@ END;
 
 
 --ESTE ES UN CODIGO DE ENSAYO ESTOY TOMANDO VALORES GENERICOS DE ORIGEN 1 Y DESTINO 4 HAY QUE HACER UN PROCEDIMIENTO QUE RECIVA LOS PARAMETROS
-DECLARE
+-- DECLARE
+-- cadena VARCHAR(250);
+-- origen_t NUMBER:=1;
+-- destino NUMBER:=4;
+-- BEGIN
+-- FOR i IN (SELECT origen, destino, costo FROM red,
+-- XMLTABLE
+-- (
+--   '/GrafoRuta/Paso'
+--   PASSING grafo_rutas
+--   COLUMNS
+--   origen NUMBER(3) PATH 'Origen',
+--   destino NUMBER(3) PATH 'Destino',
+--   costo NUMBER(3) PATH 'Costo'
+-- ) WHERE id_red = 330 and origen = origen_t) LOOP
+--   cadena:=origen_t||'-'||i.destino||recursiva(origen_t,i.destino,destino,i.costo,1);
+-- 	IF length(cadena) != instr(cadena,'x') THEN
+-- 	  DBMS_OUTPUT.PUT_LINE(cadena);
+-- 	END IF;
+-- END LOOP;
+-- END;
+-- /
+
+
+
+CREATE OR REPLACE PROCEDURE posibles_rutas
+(codigo_red IN NUMBER, origen_t IN NUMBER, destino IN NUMBER)
+IS
 cadena VARCHAR(250);
-origen NUMBER:=1;
-destino NUMBER:=4;
 BEGIN
 FOR i IN (SELECT origen, destino, costo FROM red,
 XMLTABLE
@@ -128,9 +153,11 @@ XMLTABLE
   origen NUMBER(3) PATH 'Origen',
   destino NUMBER(3) PATH 'Destino',
   costo NUMBER(3) PATH 'Costo'
-) WHERE id_red = 330 and origen = origen) LOOP
-  cadena:=origen||'-'||i.destino||'-'||recursiva(origen,i.destino,destino,i.costo,1);
-  DBMS_OUTPUT.PUT_LINE(cadena);
+) WHERE id_red = codigo_red and origen = origen_t) LOOP
+  cadena:=origen_t||'-'||i.destino||recursiva(codigo_red,origen_t,i.destino,destino,i.costo,1);
+	IF length(cadena) != instr(cadena,'x') THEN
+	  DBMS_OUTPUT.PUT_LINE(cadena);
+	END IF;
 END LOOP;
 END;
 /
