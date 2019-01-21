@@ -111,35 +111,45 @@ create or replace PROCEDURE posibles_rutas
 IS
 cadena VARCHAR(250);
 tam NUMBER:=0;
+tamano_final NUMBER;
 BEGIN
 delete rutas_posibles;
-SELECT count(DISTINCT origen) INTO tam FROM red,
-XMLTABLE
-(
-  '/GrafoRuta/Paso'
-  PASSING grafo_rutas
-  COLUMNS
-  origen NUMBER(38) PATH 'Origen',
-  destino NUMBER(38) PATH 'Destino',
-  costo NUMBER(38) PATH 'Costo'
-) WHERE id_red = codigo_red;
+IF origen_t = destino THEN
+	DBMS_OUTPUT.PUT_LINE('Las ciudades deben ser distintas');
+ELSE
+	SELECT count(DISTINCT origen) INTO tam FROM red,
+	XMLTABLE
+	(
+	  '/GrafoRuta/Paso'
+	  PASSING grafo_rutas
+	  COLUMNS
+	  origen NUMBER(38) PATH 'Origen',
+	  destino NUMBER(38) PATH 'Destino',
+	  costo NUMBER(38) PATH 'Costo'
+	) WHERE id_red = codigo_red;
 
-FOR i IN (SELECT origen, destino, costo FROM red,
-XMLTABLE
-(
-  '/GrafoRuta/Paso'
-  PASSING grafo_rutas
-  COLUMNS
-  origen NUMBER(38) PATH 'Origen',
-  destino NUMBER(38) PATH 'Destino',
-  costo NUMBER(38) PATH 'Costo'
-) WHERE id_red = codigo_red and origen = origen_t) LOOP
-  cadena:=origen_t||'-'||i.destino;
-  recursiva(cadena,codigo_red,origen_t,i.destino,destino,i.costo,1,tam);
-END LOOP;
+	FOR i IN (SELECT origen, destino, costo FROM red,
+	XMLTABLE
+	(
+	  '/GrafoRuta/Paso'
+	  PASSING grafo_rutas
+	  COLUMNS
+	  origen NUMBER(38) PATH 'Origen',
+	  destino NUMBER(38) PATH 'Destino',
+	  costo NUMBER(38) PATH 'Costo'
+	) WHERE id_red = codigo_red and origen = origen_t) LOOP
+	  cadena:=origen_t||'-'||i.destino;
+	  recursiva(cadena,codigo_red,origen_t,i.destino,destino,i.costo,1,tam);
+	END LOOP;
 
-FOR elemento IN (select * from rutas_posibles order by total desc) LOOP
-	DBMS_OUTPUT.PUT_LINE(elemento.texo||' total '||elemento.total);
-END LOOP;
+	SELECT count(*) INTO tamano_final from rutas_posibles;
+	IF tamano_final = 0 THEN
+		DBMS_OUTPUT.PUT_LINE('No hay rutas entre las dos ciudades dadas');
+	ELSE
+		FOR elemento IN (select * from rutas_posibles order by total desc) LOOP
+			DBMS_OUTPUT.PUT_LINE(elemento.texo||' total '||elemento.total);
+		END LOOP;
+	END IF;
+END IF;
 END;
 /
